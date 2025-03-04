@@ -1,7 +1,7 @@
 /compile_commands.json
 /.cache
 /boot
-/freestnd-c-hdrs-0bsd
+/freestnd-c-hdrs
 /cc-runtime*
 /nyu-efi
 /ovmf

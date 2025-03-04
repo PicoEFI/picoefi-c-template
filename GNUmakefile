@@ -41,7 +41,7 @@ endif
 LDFLAGS :=
 
 # Ensure the dependencies have been obtained.
-ifeq ($(shell ( ! test -d freestnd-c-hdrs-0bsd || ! test -d cc-runtime || ! test -d nyu-efi ); echo $$?),0)
+ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d cc-runtime || ! test -d nyu-efi ); echo $$?),0)
     $(error Please run the ./get-deps script first)
 endif
 
@@ -70,7 +70,7 @@ override CFLAGS += \
 override CPPFLAGS := \
     -I src \
     -I nyu-efi/inc \
-    -isystem freestnd-c-hdrs-0bsd \
+    -isystem freestnd-c-hdrs \
     $(CPPFLAGS) \
     -MMD \
     -MP
@@ -182,7 +182,7 @@ nyu-efi:
 		ARCH="$(ARCH)" \
 		CC="$(CC)" \
 		CFLAGS="$(USER_CFLAGS) -nostdinc" \
-		CPPFLAGS="$(USER_CPPFLAGS) -isystem ../../freestnd-c-hdrs-0bsd"
+		CPPFLAGS="$(USER_CPPFLAGS) -isystem ../../freestnd-c-hdrs"
 
 # Link rules for building the C compiler runtime.
 cc-runtime-$(ARCH)/cc-runtime.a: GNUmakefile cc-runtime/*
@@ -192,7 +192,7 @@ cc-runtime-$(ARCH)/cc-runtime.a: GNUmakefile cc-runtime/*
 		CC="$(CC)" \
 		AR="$(AR)" \
 		CFLAGS="$(CFLAGS)" \
-		CPPFLAGS='-isystem ../freestnd-c-hdrs-0bsd -DCC_RUNTIME_NO_FLOAT'
+		CPPFLAGS='-isystem ../freestnd-c-hdrs -DCC_RUNTIME_NO_FLOAT'
 
 # Rule to convert the final ELF executable to a .EFI PE executable.
 bin-$(ARCH)/$(OUTPUT).efi: bin-$(ARCH)/$(OUTPUT) GNUmakefile
@@ -305,4 +305,4 @@ clean:
 # Remove everything built and generated including downloaded dependencies.
 .PHONY: distclean
 distclean:
-	rm -rf bin-* obj-* freestnd-c-hdrs-0bsd cc-runtime* nyu-efi ovmf
+	rm -rf bin-* obj-* freestnd-c-hdrs cc-runtime* nyu-efi ovmf
