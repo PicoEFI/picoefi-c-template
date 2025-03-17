@@ -77,4 +77,4 @@ clone_repo_commit \
 clone_repo_commit \
     https://github.com/osdev0/nyu-efi.git \
     nyu-efi \
-    eede601b8a9134cb4b6de96d2c430e2424c1390c
+    2263ac1a2bc98e5534d64a4896d3cfbbae00745a
