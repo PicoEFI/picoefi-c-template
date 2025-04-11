@@ -2,7 +2,7 @@
 /.cache
 /boot
 /freestnd-c-hdrs
-/cc-runtime*
+/src/cc-runtime
 /nyu-efi
 /ovmf
 /bin-*

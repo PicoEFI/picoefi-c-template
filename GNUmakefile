@@ -20,9 +20,6 @@ QEMUFLAGS := -m 2G
 # User controllable C compiler command.
 CC := cc
 
-# User controllable archiver command.
-AR := ar
-
 # User controllable objcopy command.
 OBJCOPY := objcopy
 
@@ -41,7 +38,7 @@ endif
 LDFLAGS :=
 
 # Ensure the dependencies have been obtained.
-ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d cc-runtime || ! test -d nyu-efi ); echo $$?),0)
+ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d src/cc-runtime || ! test -d nyu-efi ); echo $$?),0)
     $(error Please run the ./get-deps script first)
 endif
 
@@ -184,16 +181,6 @@ nyu-efi:
 		CFLAGS="$(USER_CFLAGS) -nostdinc" \
 		CPPFLAGS="$(USER_CPPFLAGS) -isystem ../../freestnd-c-hdrs"
 
-# Link rules for building the C compiler runtime.
-cc-runtime-$(ARCH)/cc-runtime.a: GNUmakefile cc-runtime/*
-	rm -rf cc-runtime-$(ARCH)
-	cp -r cc-runtime cc-runtime-$(ARCH)
-	$(MAKE) -C cc-runtime-$(ARCH) -f cc-runtime.mk \
-		CC="$(CC)" \
-		AR="$(AR)" \
-		CFLAGS="$(CFLAGS)" \
-		CPPFLAGS='-isystem ../freestnd-c-hdrs -DCC_RUNTIME_NO_FLOAT'
-
 # Rule to convert the final ELF executable to a .EFI PE executable.
 bin-$(ARCH)/$(OUTPUT).efi: bin-$(ARCH)/$(OUTPUT) GNUmakefile
 	mkdir -p "$$(dirname $@)"
@@ -201,9 +188,9 @@ bin-$(ARCH)/$(OUTPUT).efi: bin-$(ARCH)/$(OUTPUT) GNUmakefile
 	dd if=/dev/zero of=$@ bs=4096 count=0 seek=$$(( ($$(wc -c < $@) + 4095) / 4096 )) 2>/dev/null
 
 # Link rules for the final executable.
-bin-$(ARCH)/$(OUTPUT): GNUmakefile nyu-efi/src/elf_$(ARCH)_efi.lds nyu-efi/src/crt0-efi-$(ARCH).S.o nyu-efi/src/reloc_$(ARCH).c.o $(OBJ) cc-runtime-$(ARCH)/cc-runtime.a
+bin-$(ARCH)/$(OUTPUT): GNUmakefile nyu-efi/src/elf_$(ARCH)_efi.lds nyu-efi/src/crt0-efi-$(ARCH).S.o nyu-efi/src/reloc_$(ARCH).c.o $(OBJ)
 	mkdir -p "$$(dirname $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) nyu-efi/src/crt0-efi-$(ARCH).S.o nyu-efi/src/reloc_$(ARCH).c.o $(OBJ) cc-runtime-$(ARCH)/cc-runtime.a -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) nyu-efi/src/crt0-efi-$(ARCH).S.o nyu-efi/src/reloc_$(ARCH).c.o $(OBJ) -o $@
 
 # Compilation rules for *.c files.
 obj-$(ARCH)/%.c.o: src/%.c GNUmakefile
@@ -300,9 +287,9 @@ endif
 .PHONY: clean
 clean:
 	$(MAKE) -C nyu-efi/src -f nyu-efi.mk ARCH="$(ARCH)" clean
-	rm -rf bin-$(ARCH) obj-$(ARCH) cc-runtime-$(ARCH)
+	rm -rf bin-$(ARCH) obj-$(ARCH)
 
 # Remove everything built and generated including downloaded dependencies.
 .PHONY: distclean
 distclean:
-	rm -rf bin-* obj-* freestnd-c-hdrs cc-runtime* nyu-efi ovmf
+	rm -rf bin-* obj-* freestnd-c-hdrs src/cc-runtime nyu-efi ovmf
