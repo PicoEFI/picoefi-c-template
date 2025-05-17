@@ -89,6 +89,7 @@ ifeq ($(ARCH),ia32)
         -march=i386 \
         -mno-80387
     override LDFLAGS += \
+        -pie \
         -Wl,-m,elf_i386
     override NASMFLAGS += \
         -f elf32
@@ -107,6 +108,7 @@ ifeq ($(ARCH),x86_64)
         -mno-sse2 \
         -mno-red-zone
     override LDFLAGS += \
+        -pie \
         -Wl,-m,elf_x86_64
     override NASMFLAGS += \
         -f elf64
@@ -119,6 +121,7 @@ ifeq ($(ARCH),aarch64)
     override CFLAGS += \
         -mgeneral-regs-only
     override LDFLAGS += \
+        -pie \
         -Wl,-m,aarch64elf
 endif
 ifeq ($(ARCH),riscv64)
@@ -135,6 +138,7 @@ ifeq ($(ARCH),riscv64)
         -mabi=lp64 \
         -mno-relax
     override LDFLAGS += \
+        -Wl,-pie \
         -Wl,-m,elf64lriscv \
         -Wl,--no-relax
 endif
@@ -147,6 +151,7 @@ ifeq ($(ARCH),loongarch64)
         -march=loongarch64 \
         -mabi=lp64s
     override LDFLAGS += \
+        -pie \
         -Wl,-m,elf64loongarch \
         -Wl,--no-relax
 endif
@@ -155,7 +160,6 @@ endif
 override LDFLAGS += \
     -Wl,--build-id=none \
     -nostdlib \
-    -pie \
     -z text \
     -z max-page-size=0x1000 \
     -Wl,--gc-sections \
