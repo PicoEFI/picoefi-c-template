@@ -163,11 +163,11 @@ override LDFLAGS += \
     -z text \
     -z max-page-size=0x1000 \
     -Wl,--gc-sections \
-    -T nyu-efi/src/elf_$(ARCH)_efi.lds
+    -T nyu-efi/$(ARCH)/link_script.lds
 
 # Use "find" to glob all *.c, *.S, and *.asm{32,64} files in the tree and obtain the
 # object and header dependency file names.
-override SRCFILES := $(shell cd src && find -L * -type f | LC_ALL=C sort)
+override SRCFILES := $(shell find -L src nyu-efi/$(ARCH) -type f | LC_ALL=C sort)
 override CFILES := $(filter %.c,$(SRCFILES))
 override ASFILES := $(filter %.S,$(SRCFILES))
 ifeq ($(ARCH),ia32)
@@ -192,19 +192,6 @@ all: bin-$(ARCH)/$(OUTPUT).efi
 # Include header dependencies.
 -include $(HEADER_DEPS)
 
-# Rules to build the nyu-efi objects we need.
-nyu-efi/src/crt0-efi-$(ARCH).S.o: nyu-efi
-
-nyu-efi/src/reloc_$(ARCH).c.o: nyu-efi
-
-.PHONY: nyu-efi
-nyu-efi:
-	$(MAKE) -C nyu-efi/src -f nyu-efi.mk \
-		ARCH="$(ARCH)" \
-		CC="$(CC)" \
-		CFLAGS="$(USER_CFLAGS) -nostdinc" \
-		CPPFLAGS="$(USER_CPPFLAGS) -isystem ../../freestnd-c-hdrs"
-
 # Rule to convert the final ELF executable to a .EFI PE executable.
 bin-$(ARCH)/$(OUTPUT).efi: bin-$(ARCH)/$(OUTPUT) GNUmakefile
 	mkdir -p "$$(dirname $@)"
@@ -212,30 +199,30 @@ bin-$(ARCH)/$(OUTPUT).efi: bin-$(ARCH)/$(OUTPUT) GNUmakefile
 	dd if=/dev/zero of=$@ bs=4096 count=0 seek=$$(( ($$(wc -c < $@) + 4095) / 4096 )) 2>/dev/null
 
 # Link rules for the final executable.
-bin-$(ARCH)/$(OUTPUT): GNUmakefile nyu-efi/src/elf_$(ARCH)_efi.lds nyu-efi/src/crt0-efi-$(ARCH).S.o nyu-efi/src/reloc_$(ARCH).c.o $(OBJ)
+bin-$(ARCH)/$(OUTPUT): GNUmakefile nyu-efi/$(ARCH)/link_script.lds $(OBJ)
 	mkdir -p "$$(dirname $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) nyu-efi/src/crt0-efi-$(ARCH).S.o nyu-efi/src/reloc_$(ARCH).c.o $(OBJ) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) -o $@
 
 # Compilation rules for *.c files.
-obj-$(ARCH)/%.c.o: src/%.c GNUmakefile
+obj-$(ARCH)/%.c.o: %.c GNUmakefile
 	mkdir -p "$$(dirname $@)"
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 # Compilation rules for *.S files.
-obj-$(ARCH)/%.S.o: src/%.S GNUmakefile
+obj-$(ARCH)/%.S.o: %.S GNUmakefile
 	mkdir -p "$$(dirname $@)"
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 ifeq ($(ARCH),ia32)
 # Compilation rules for *.asm32 (nasm) files.
-obj-$(ARCH)/%.asm32.o: src/%.asm32 GNUmakefile
+obj-$(ARCH)/%.asm32.o: %.asm32 GNUmakefile
 	mkdir -p "$$(dirname $@)"
 	nasm $(NASMFLAGS) $< -o $@
 endif
 
 ifeq ($(ARCH),x86_64)
 # Compilation rules for *.asm64 (nasm) files.
-obj-$(ARCH)/%.asm64.o: src/%.asm64 GNUmakefile
+obj-$(ARCH)/%.asm64.o: %.asm64 GNUmakefile
 	mkdir -p "$$(dirname $@)"
 	nasm $(NASMFLAGS) $< -o $@
 endif
@@ -326,7 +313,6 @@ endif
 # Remove object files and the final executable.
 .PHONY: clean
 clean:
-	$(MAKE) -C nyu-efi/src -f nyu-efi.mk ARCH="$(ARCH)" clean
 	rm -rf bin-$(ARCH) obj-$(ARCH)
 
 # Remove everything built and generated including downloaded dependencies.
