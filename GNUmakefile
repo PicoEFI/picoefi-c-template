@@ -38,16 +38,12 @@ endif
 LDFLAGS :=
 
 # Ensure the dependencies have been obtained.
-ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d src/cc-runtime || ! test -d nyu-efi ); echo $$?),0)
+ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d cc-runtime || ! test -d nyu-efi ); echo $$?),0)
     $(error Please run the ./get-deps script first)
 endif
 
 # Check if CC is Clang.
 override CC_IS_CLANG := $(shell ! $(CC) --version 2>/dev/null | grep 'clang' >/dev/null 2>&1; echo $$?)
-
-# Save user CFLAGS and CPPFLAGS before we append internal flags.
-override USER_CFLAGS := $(CFLAGS)
-override USER_CPPFLAGS := $(CPPFLAGS)
 
 # Internal C flags that should not be changed by the user.
 override CFLAGS += \
@@ -82,12 +78,13 @@ endif
 ifeq ($(ARCH),ia32)
     ifeq ($(CC_IS_CLANG),1)
         override CC += \
-            -target i386-unknown-none
+            -target i686-unknown-none
     endif
     override CFLAGS += \
         -m32 \
-        -march=i386 \
-        -mno-80387
+        -march=i686 \
+        -mno-80387 \
+        -mno-mmx
     override LDFLAGS += \
         -pie \
         -Wl,-m,elf_i386
@@ -167,7 +164,7 @@ override LDFLAGS += \
 
 # Use "find" to glob all *.c, *.S, and *.asm{32,64} files in the tree and obtain the
 # object and header dependency file names.
-override SRCFILES := $(shell find -L src nyu-efi/$(ARCH) -type f | LC_ALL=C sort)
+override SRCFILES := $(shell find -L src cc-runtime/src nyu-efi/$(ARCH) -type f | LC_ALL=C sort)
 override CFILES := $(filter %.c,$(SRCFILES))
 override ASFILES := $(filter %.S,$(SRCFILES))
 ifeq ($(ARCH),ia32)
@@ -318,4 +315,4 @@ clean:
 # Remove everything built and generated including downloaded dependencies.
 .PHONY: distclean
 distclean:
-	rm -rf bin-* obj-* freestnd-c-hdrs src/cc-runtime nyu-efi ovmf
+	rm -rf bin-* obj-* freestnd-c-hdrs cc-runtime nyu-efi ovmf
