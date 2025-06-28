@@ -90,7 +90,7 @@ ifeq ($(ARCH),ia32)
         -mno-80387 \
         -mno-mmx
     override LDFLAGS += \
-        -Wl,-m,elf_i386
+        -m elf_i386
     override NASMFLAGS += \
         -f elf32
 endif
