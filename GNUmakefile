@@ -91,8 +91,9 @@ ifeq ($(ARCH),ia32)
         -mno-mmx
     override LDFLAGS += \
         -m elf_i386
-    override NASMFLAGS += \
-        -f elf32
+    override NASMFLAGS := \
+        -f elf32 \
+        $(NASMFLAGS)
 endif
 ifeq ($(ARCH),x86_64)
     ifeq ($(CC_IS_CLANG),1)
@@ -109,8 +110,9 @@ ifeq ($(ARCH),x86_64)
         -mno-red-zone
     override LDFLAGS += \
         -m elf_x86_64
-    override NASMFLAGS += \
-        -f elf64
+    override NASMFLAGS := \
+        -f elf64 \
+        $(NASMFLAGS)
 endif
 ifeq ($(ARCH),aarch64)
     ifeq ($(CC_IS_CLANG),1)
