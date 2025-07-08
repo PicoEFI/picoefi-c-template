@@ -17,14 +17,33 @@ endif
 # Default user QEMU flags. These are appended to the QEMU command calls.
 QEMUFLAGS := -m 2G
 
+# User controllable toolchain and toolchain prefix.
+TOOLCHAIN :=
+TOOLCHAIN_PREFIX :=
+ifneq ($(TOOLCHAIN),)
+    ifeq ($(TOOLCHAIN_PREFIX),)
+        TOOLCHAIN_PREFIX := $(TOOLCHAIN)-
+    endif
+endif
+
 # User controllable C compiler command.
-CC := cc
+ifneq ($(TOOLCHAIN_PREFIX),)
+    CC := $(TOOLCHAIN_PREFIX)gcc
+else
+    CC := cc
+endif
 
 # User controllable linker command.
-LD := ld
+LD := $(TOOLCHAIN_PREFIX)ld
 
 # User controllable objcopy command.
-OBJCOPY := objcopy
+OBJCOPY := $(TOOLCHAIN_PREFIX)objcopy
+
+# Defaults overrides for variables if using "llvm" as toolchain.
+ifeq ($(TOOLCHAIN),llvm)
+    CC := clang
+    LD := ld.lld
+endif
 
 # User controllable C flags.
 CFLAGS := -g -O2 -pipe
