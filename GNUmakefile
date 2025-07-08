@@ -65,7 +65,7 @@ ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d cc-runtime || ! test -d n
 endif
 
 # Check if CC is Clang.
-override CC_IS_CLANG := $(shell ! $(CC) --version 2>/dev/null | grep 'clang' >/dev/null 2>&1; echo $$?)
+override CC_IS_CLANG := $(shell ! $(CC) --version 2>/dev/null | grep '^Target: ' >/dev/null 2>&1; echo $$?)
 
 # Internal C flags that should not be changed by the user.
 override CFLAGS += \
