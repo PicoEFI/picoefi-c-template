@@ -179,7 +179,7 @@ override LDFLAGS += \
     -pie \
     -z text \
     -z max-page-size=0x1000 \
-    -gc-sections \
+    --gc-sections \
     -T nyu-efi/$(ARCH)/link_script.lds
 
 # Use "find" to glob all *.c, *.S, and *.asm{32,64} files in the tree and obtain the
