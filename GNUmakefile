@@ -101,7 +101,7 @@ endif
 ifeq ($(ARCH),ia32)
     ifeq ($(CC_IS_CLANG),1)
         override CC += \
-            -target i686-unknown-none
+            -target i686-unknown-none-elf
     endif
     override CFLAGS += \
         -m32 \
@@ -117,7 +117,7 @@ endif
 ifeq ($(ARCH),x86_64)
     ifeq ($(CC_IS_CLANG),1)
         override CC += \
-            -target x86_64-unknown-none
+            -target x86_64-unknown-none-elf
     endif
     override CFLAGS += \
         -m64 \
@@ -136,7 +136,7 @@ endif
 ifeq ($(ARCH),aarch64)
     ifeq ($(CC_IS_CLANG),1)
         override CC += \
-            -target aarch64-unknown-none
+            -target aarch64-unknown-none-elf
     endif
     override CFLAGS += \
         -mgeneral-regs-only
@@ -146,7 +146,7 @@ endif
 ifeq ($(ARCH),riscv64)
     ifeq ($(CC_IS_CLANG),1)
         override CC += \
-            -target riscv64-unknown-none
+            -target riscv64-unknown-none-elf
         override CFLAGS += \
             -march=rv64imac
     else
@@ -163,7 +163,7 @@ endif
 ifeq ($(ARCH),loongarch64)
     ifeq ($(CC_IS_CLANG),1)
         override CC += \
-            -target loongarch64-unknown-none
+            -target loongarch64-unknown-none-elf
     endif
     override CFLAGS += \
         -march=loongarch64 \
