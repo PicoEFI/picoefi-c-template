@@ -9,6 +9,9 @@ override OUTPUT := efi-template
 # Target architecture to build for. Default to x86_64.
 ARCH := x86_64
 
+# Install prefix; /usr/local is a good, standard default pick.
+PREFIX := /usr/local
+
 # Check if the architecture is supported.
 ifeq ($(filter $(ARCH),ia32 aarch64 loongarch64 riscv64 x86_64),)
     $(error Architecture $(ARCH) not supported)
@@ -338,3 +341,15 @@ clean:
 .PHONY: distclean
 distclean:
 	rm -rf bin-* obj-* freestnd-c-hdrs cc-runtime nyu-efi ovmf
+
+# Install the final built executable to its final on-root location.
+.PHONY: install
+install: all
+	install -d "$(DESTDIR)$(PREFIX)/share/$(OUTPUT)"
+	install -m 644 bin-$(ARCH)/$(OUTPUT).efi "$(DESTDIR)$(PREFIX)/share/$(OUTPUT)/$(OUTPUT)-$(ARCH).efi"
+
+# Try to undo whatever the "install" target did.
+.PHONY: uninstall
+uninstall:
+	rm -f "$(DESTDIR)$(PREFIX)/share/$(OUTPUT)/$(OUTPUT)-$(ARCH).efi"
+	-rmdir "$(DESTDIR)$(PREFIX)/share/$(OUTPUT)"
