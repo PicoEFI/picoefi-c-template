@@ -60,8 +60,10 @@ endif
 LDFLAGS :=
 
 # Ensure the dependencies have been obtained.
-ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d cc-runtime || ! test -d nyu-efi ); echo $$?),0)
-    $(error Please run the ./get-deps script first)
+ifneq ($(shell ( test '$(MAKECMDGOALS)' = clean || test '$(MAKECMDGOALS)' = distclean ); echo $$?),0)
+    ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d cc-runtime || ! test -d nyu-efi ); echo $$?),0)
+        $(error Please run the ./get-deps script first)
+    endif
 endif
 
 # Check if CC is Clang.
@@ -184,7 +186,7 @@ override LDFLAGS += \
 
 # Use "find" to glob all *.c, *.S, and *.asm{32,64} files in the tree and obtain the
 # object and header dependency file names.
-override SRCFILES := $(shell find -L src cc-runtime/src nyu-efi/$(ARCH) -type f | LC_ALL=C sort)
+override SRCFILES := $(shell find -L src cc-runtime/src nyu-efi/$(ARCH) -type f 2>/dev/null | LC_ALL=C sort)
 override CFILES := $(filter %.c,$(SRCFILES))
 override ASFILES := $(filter %.S,$(SRCFILES))
 ifeq ($(ARCH),ia32)
