@@ -91,7 +91,7 @@ override CFLAGS += \
 override CPPFLAGS := \
     -I src \
     -I nyu-efi/inc \
-    -isystem freestnd-c-hdrs \
+    -isystem freestnd-c-hdrs/include \
     $(CPPFLAGS) \
     -MMD \
     -MP
