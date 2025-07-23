@@ -181,6 +181,7 @@ endif
 # Internal linker flags that should not be changed by the user.
 override LDFLAGS += \
     -nostdlib \
+    -Bstatic \
     -pie \
     -z text \
     -z max-page-size=0x1000 \
