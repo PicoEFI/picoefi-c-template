@@ -82,7 +82,6 @@ override CFLAGS += \
     -fno-stack-protector \
     -fno-stack-check \
     -fshort-wchar \
-    -fno-lto \
     -fPIE \
     -ffunction-sections \
     -fdata-sections
