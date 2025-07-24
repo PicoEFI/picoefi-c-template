@@ -180,8 +180,9 @@ endif
 # Internal linker flags that should not be changed by the user.
 override LDFLAGS += \
     -nostdlib \
-    -Bstatic \
+    -static \
     -pie \
+    --no-dynamic-linker \
     -z text \
     -z max-page-size=0x1000 \
     --gc-sections \
