@@ -110,6 +110,7 @@ ifeq ($(ARCH),ia32)
     override CFLAGS += \
         -m32 \
         -march=i686 \
+        -mabi=sysv \
         -mno-80387 \
         -mno-mmx
     override LDFLAGS += \
@@ -126,6 +127,7 @@ ifeq ($(ARCH),x86_64)
     override CFLAGS += \
         -m64 \
         -march=x86-64 \
+        -mabi=sysv \
         -mno-80387 \
         -mno-mmx \
         -mno-sse \
@@ -143,6 +145,8 @@ ifeq ($(ARCH),aarch64)
             -target aarch64-unknown-none-elf
     endif
     override CFLAGS += \
+        -mcpu=generic \
+        -march=armv8-a+nofp+nosimd \
         -mgeneral-regs-only
     override LDFLAGS += \
         -m aarch64elf
@@ -171,7 +175,10 @@ ifeq ($(ARCH),loongarch64)
     endif
     override CFLAGS += \
         -march=loongarch64 \
-        -mabi=lp64s
+        -mabi=lp64s \
+        -mfpu=none \
+        -msimd=none \
+        -mno-relax
     override LDFLAGS += \
         -m elf64loongarch \
         --no-relax
