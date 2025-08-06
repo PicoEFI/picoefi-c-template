@@ -55,7 +55,7 @@ CPPFLAGS :=
 
 ifneq ($(filter $(ARCH),ia32 x86_64),)
     # User controllable nasm flags.
-    NASMFLAGS := -F dwarf -g
+    NASMFLAGS := -g
 endif
 
 # User controllable linker flags. We set none by default.
@@ -97,7 +97,8 @@ override CPPFLAGS := \
 
 ifneq ($(filter $(ARCH),ia32 x86_64),)
     # Internal nasm flags that should not be changed by the user.
-    override NASMFLAGS += \
+    override NASMFLAGS := \
+        $(patsubst -g,-g -F dwarf,$(NASMFLAGS)) \
         -Wall
 endif
 
