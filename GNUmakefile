@@ -223,36 +223,36 @@ all: bin-$(ARCH)/$(OUTPUT).efi
 
 # Rule to convert the final ELF executable to a .EFI PE executable.
 bin-$(ARCH)/$(OUTPUT).efi: bin-$(ARCH)/$(OUTPUT) GNUmakefile
-	mkdir -p "$$(dirname $@)"
+	mkdir -p "$(dir $@)"
 	$(OBJCOPY) -O binary $< $@
 	dd if=/dev/zero of=$@ bs=4096 count=0 seek=$$(( ($$(wc -c < $@) + 4095) / 4096 )) 2>/dev/null
 
 # Link rules for the final executable.
 bin-$(ARCH)/$(OUTPUT): GNUmakefile nyu-efi/$(ARCH)/link_script.lds $(OBJ)
-	mkdir -p "$$(dirname $@)"
+	mkdir -p "$(dir $@)"
 	$(LD) $(OBJ) $(LDFLAGS) -o $@
 
 # Compilation rules for *.c files.
 obj-$(ARCH)/%.c.o: %.c GNUmakefile
-	mkdir -p "$$(dirname $@)"
+	mkdir -p "$(dir $@)"
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 # Compilation rules for *.S files.
 obj-$(ARCH)/%.S.o: %.S GNUmakefile
-	mkdir -p "$$(dirname $@)"
+	mkdir -p "$(dir $@)"
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 ifeq ($(ARCH),ia32)
 # Compilation rules for *.asm32 (nasm) files.
 obj-$(ARCH)/%.asm32.o: %.asm32 GNUmakefile
-	mkdir -p "$$(dirname $@)"
+	mkdir -p "$(dir $@)"
 	nasm $(NASMFLAGS) $< -o $@
 endif
 
 ifeq ($(ARCH),x86_64)
 # Compilation rules for *.asm64 (nasm) files.
 obj-$(ARCH)/%.asm64.o: %.asm64 GNUmakefile
-	mkdir -p "$$(dirname $@)"
+	mkdir -p "$(dir $@)"
 	nasm $(NASMFLAGS) $< -o $@
 endif
 
