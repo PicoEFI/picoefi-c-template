@@ -194,23 +194,21 @@ override LDFLAGS += \
     --gc-sections \
     -T nyu-efi/$(ARCH)/link_script.lds
 
-# Use "find" to glob all *.c, *.S, and *.asm{32,64} files in the tree and obtain the
-# object and header dependency file names.
-override SRCFILES := $(shell find -L src cc-runtime/src nyu-efi/$(ARCH) -type f 2>/dev/null | LC_ALL=C sort)
+# Use "find" to glob all *.c, *.S, and *.asm files in the tree
+# (except the src/arch/* directories, as those are gonna be added
+# in the next step).
+override SRCFILES := $(shell find -L src cc-runtime/src nyu-efi/$(ARCH) -type f -not -path 'src/arch/*' 2>/dev/null | LC_ALL=C sort)
+# Add architecture specific files, if they exist.
+override SRCFILES += $(shell find -L src/arch/$(ARCH) -type f 2>/dev/null | LC_ALL=C sort)
+# Obtain the object and header dependencies file names.
 override CFILES := $(filter %.c,$(SRCFILES))
 override ASFILES := $(filter %.S,$(SRCFILES))
-ifeq ($(ARCH),ia32)
-override NASMFILES := $(filter %.asm32,$(SRCFILES))
-endif
-ifeq ($(ARCH),x86_64)
-override NASMFILES := $(filter %.asm64,$(SRCFILES))
+ifneq ($(filter $(ARCH),ia32 x86_64),)
+override NASMFILES := $(filter %.asm,$(SRCFILES))
 endif
 override OBJ := $(addprefix obj-$(ARCH)/,$(CFILES:.c=.c.o) $(ASFILES:.S=.S.o))
-ifeq ($(ARCH),ia32)
-override OBJ += $(addprefix obj-$(ARCH)/,$(NASMFILES:.asm32=.asm32.o))
-endif
-ifeq ($(ARCH),x86_64)
-override OBJ += $(addprefix obj-$(ARCH)/,$(NASMFILES:.asm64=.asm64.o))
+ifneq ($(filter $(ARCH),ia32 x86_64),)
+override OBJ += $(addprefix obj-$(ARCH)/,$(NASMFILES:.asm=.asm.o))
 endif
 override HEADER_DEPS := $(addprefix obj-$(ARCH)/,$(CFILES:.c=.c.d) $(ASFILES:.S=.S.d))
 
