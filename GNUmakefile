@@ -240,16 +240,9 @@ obj-$(ARCH)/%.S.o: %.S GNUmakefile
 	mkdir -p "$(dir $@)"
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
-ifeq ($(ARCH),ia32)
-# Compilation rules for *.asm32 (nasm) files.
-obj-$(ARCH)/%.asm32.o: %.asm32 GNUmakefile
-	mkdir -p "$(dir $@)"
-	nasm $(NASMFLAGS) $< -o $@
-endif
-
-ifeq ($(ARCH),x86_64)
-# Compilation rules for *.asm64 (nasm) files.
-obj-$(ARCH)/%.asm64.o: %.asm64 GNUmakefile
+ifneq ($(filter $(ARCH),ia32 x86_64),)
+# Compilation rules for *.asm (nasm) files.
+obj-$(ARCH)/%.asm.o: %.asm GNUmakefile
 	mkdir -p "$(dir $@)"
 	nasm $(NASMFLAGS) $< -o $@
 endif
