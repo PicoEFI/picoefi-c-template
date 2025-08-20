@@ -3,7 +3,7 @@
 /boot
 /freestnd-c-hdrs
 /cc-runtime
-/nyu-efi
+/picoefi
 /ovmf
 /bin-*
 /obj-*

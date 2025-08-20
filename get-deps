@@ -41,9 +41,9 @@ clone_repo_commit \
     dae79833b57a01b9fd3e359ee31def69f5ae899b
 
 clone_repo_commit \
-    https://codeberg.org/osdev/nyu-efi.git \
-    nyu-efi \
-    2307e1e06c51023285ceac4b41bfdd44d746df8b
+    https://github.com/PicoEFI/PicoEFI.git \
+    picoefi \
+    2690f9a67db1ad05315c044d7ba51d72b6a6ccc3
 
 set +x
 

@@ -63,7 +63,7 @@ LDFLAGS :=
 
 # Ensure the dependencies have been obtained.
 ifneq ($(shell ( test '$(MAKECMDGOALS)' = clean || test '$(MAKECMDGOALS)' = distclean ); echo $$?),0)
-    ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d cc-runtime || ! test -d nyu-efi ); echo $$?),0)
+    ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d cc-runtime || ! test -d picoefi ); echo $$?),0)
         $(error Please run the ./get-deps script first)
     endif
 endif
@@ -89,7 +89,7 @@ override CFLAGS += \
 # Internal C preprocessor flags that should not be changed by the user.
 override CPPFLAGS := \
     -I src \
-    -I nyu-efi/inc \
+    -I picoefi/inc \
     -isystem freestnd-c-hdrs/include \
     $(CPPFLAGS) \
     -MMD \
@@ -190,12 +190,12 @@ override LDFLAGS += \
     -z text \
     -z max-page-size=0x1000 \
     --gc-sections \
-    -T nyu-efi/$(ARCH)/link_script.lds
+    -T picoefi/$(ARCH)/link_script.lds
 
 # Use "find" to glob all *.c, *.S, and *.asm files in the tree
 # (except the src/arch/* directories, as those are gonna be added
 # in the next step).
-override SRCFILES := $(shell find -L src cc-runtime/src nyu-efi/$(ARCH) -type f -not -path 'src/arch/*' 2>/dev/null | LC_ALL=C sort)
+override SRCFILES := $(shell find -L src cc-runtime/src picoefi/$(ARCH) -type f -not -path 'src/arch/*' 2>/dev/null | LC_ALL=C sort)
 # Add architecture specific files, if they exist.
 override SRCFILES += $(shell find -L src/arch/$(ARCH) -type f 2>/dev/null | LC_ALL=C sort)
 # Obtain the object and header dependencies file names.
@@ -224,7 +224,7 @@ bin-$(ARCH)/$(OUTPUT).efi: bin-$(ARCH)/$(OUTPUT) GNUmakefile
 	dd if=/dev/zero of=$@ bs=4096 count=0 seek=$$(( ($$(wc -c < $@) + 4095) / 4096 )) 2>/dev/null
 
 # Link rules for the final executable.
-bin-$(ARCH)/$(OUTPUT): GNUmakefile nyu-efi/$(ARCH)/link_script.lds $(OBJ)
+bin-$(ARCH)/$(OUTPUT): GNUmakefile picoefi/$(ARCH)/link_script.lds $(OBJ)
 	mkdir -p "$(dir $@)"
 	$(LD) $(LDFLAGS) $(OBJ) -o $@
 
@@ -336,7 +336,7 @@ clean:
 # Remove everything built and generated including downloaded dependencies.
 .PHONY: distclean
 distclean:
-	rm -rf bin-* obj-* freestnd-c-hdrs cc-runtime nyu-efi ovmf
+	rm -rf bin-* obj-* freestnd-c-hdrs cc-runtime picoefi ovmf
 
 # Install the final built executable to its final on-root location.
 .PHONY: install
