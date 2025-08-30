@@ -3,7 +3,7 @@ PicoEFI C template
 
 This is a simple C "hello world" program template using PicoEFI.
 For information about PicoEFI, see:
-https://github.com/PicoEFI/PicoEFI
+https://codeberg.org/PicoEFI/PicoEFI
 
 Works with clang and GCC, no need for any specialised toolchain or set up.
 Just type "make run" to build and run the hello world program in QEMU.
