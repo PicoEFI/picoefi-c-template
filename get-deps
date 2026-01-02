@@ -34,7 +34,7 @@ rm -f .deps-obtained
 clone_repo_commit \
     https://codeberg.org/OSDev/freestnd-c-hdrs-0bsd.git \
     freestnd-c-hdrs \
-    5e4e9e70278fe89ea328d359a58aff4f4a94b165
+    097259a899d30f0a4b7a694de2de5fdda942e923
 
 clone_repo_commit \
     https://codeberg.org/OSDev/cc-runtime.git \
@@ -44,7 +44,7 @@ clone_repo_commit \
 clone_repo_commit \
     https://codeberg.org/PicoEFI/PicoEFI.git \
     picoefi \
-    2690f9a67db1ad05315c044d7ba51d72b6a6ccc3
+    8b79fdaa72ee548a8ea24e3dc4d87bf281312865
 
 touch .deps-obtained
 
