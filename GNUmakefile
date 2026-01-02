@@ -319,7 +319,7 @@ clean:
 # Remove everything built and generated including downloaded dependencies.
 .PHONY: distclean
 distclean:
-	rm -rf bin-* obj-* .deps-obtained freestnd-c-hdrs cc-runtime picoefi edk2-ovmf
+	rm -rf bin-* obj-* .deps-obtained .cache compile_commands.json freestnd-c-hdrs cc-runtime picoefi edk2-ovmf
 
 # Install the final built executable to its final on-root location.
 .PHONY: install
