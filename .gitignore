@@ -5,6 +5,6 @@
 /freestnd-c-hdrs
 /cc-runtime
 /picoefi
-/edk2-ovmf
+/edk2-ovmf-bins
 /bin-*
 /obj-*
