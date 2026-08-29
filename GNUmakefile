@@ -189,6 +189,7 @@ override LDFLAGS += \
     -pie \
     -z text \
     -z max-page-size=0x1000 \
+    -z noexecstack \
     --gc-sections \
     -T picoefi/$(ARCH)/link_script.lds
 
