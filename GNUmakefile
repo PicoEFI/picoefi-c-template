@@ -254,8 +254,13 @@ obj-$(ARCH)/%.asm.o: %.asm GNUmakefile
 endif
 
 # Rules to download the UEFI firmware per architecture for testing.
-edk2-ovmf-bins:
-	curl -L https://github.com/osdev0/edk2-ovmf-stable-bins/releases/latest/download/edk2-ovmf-bins.tar.gz | gunzip | tar -xf -
+.INTERMEDIATE: edk2-ovmf-bins.tar.gz
+edk2-ovmf-bins.tar.gz:
+	curl -fL -o $@ https://github.com/osdev0/edk2-ovmf-stable-bins/releases/latest/download/edk2-ovmf-bins.tar.gz
+
+edk2-ovmf-bins: edk2-ovmf-bins.tar.gz
+	rm -rf edk2-ovmf-bins
+	gunzip < edk2-ovmf-bins.tar.gz | tar -xf -
 
 # Rules for running our executable in QEMU.
 .PHONY: run
@@ -326,7 +331,7 @@ clean:
 # Remove everything built and generated including downloaded dependencies.
 .PHONY: distclean
 distclean:
-	rm -rf bin-* obj-* .deps-obtained .cache compile_commands.json freestanding-c-hdrs cc-runtime picoefi edk2-ovmf-bins
+	rm -rf bin-* obj-* .deps-obtained .cache compile_commands.json freestanding-c-hdrs cc-runtime picoefi edk2-ovmf-bins edk2-ovmf-bins.tar.gz
 
 # Install the final built executable to its final on-root location.
 .PHONY: install
