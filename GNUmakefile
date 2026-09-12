@@ -22,6 +22,41 @@ endif
 # Default user QEMU flags. These are appended to the QEMU command calls.
 QEMUFLAGS := -m 2G
 
+# Internal architecture specific variables that should not be changed by the
+# user. QEMU calls ia32 i386.
+override QEMU_ARCH := $(subst ia32,i386,$(ARCH))
+ifneq ($(filter $(ARCH),ia32 x86_64),)
+    ifeq ($(ARCH),ia32)
+        override EFI_BOOT_FILE := BOOTIA32.EFI
+    else
+        override EFI_BOOT_FILE := BOOTX64.EFI
+    endif
+    override QEMU_MACHINE_FLAGS := \
+        -M q35
+else
+    ifeq ($(ARCH),aarch64)
+        override QEMU_CPU := cortex-a72
+        override EFI_BOOT_FILE := BOOTAA64.EFI
+    endif
+    ifeq ($(ARCH),riscv64)
+        override QEMU_CPU := rv64
+        override EFI_BOOT_FILE := BOOTRISCV64.EFI
+    endif
+    ifeq ($(ARCH),loongarch64)
+        override QEMU_CPU := la464
+        override EFI_BOOT_FILE := BOOTLOONGARCH64.EFI
+    endif
+    override QEMU_MACHINE_FLAGS := \
+        -M virt \
+        -cpu $(QEMU_CPU) \
+        -device ramfb \
+        -device qemu-xhci \
+        -device usb-kbd \
+        -device usb-tablet
+endif
+override QEMU_UEFI_FLAGS := \
+    -drive if=pflash,unit=0,format=raw,file=edk2-ovmf-bins/ovmf-code-$(ARCH).fd,readonly=on
+
 # User controllable toolchain and toolchain prefix.
 TOOLCHAIN :=
 TOOLCHAIN_PREFIX :=
@@ -266,61 +301,12 @@ edk2-ovmf-bins: edk2-ovmf-bins.tar.gz
 .PHONY: run
 run: all edk2-ovmf-bins
 	mkdir -p boot/EFI/BOOT
-ifeq ($(ARCH),ia32)
-	cp bin-$(ARCH)/$(OUTPUT).efi boot/EFI/BOOT/BOOTIA32.EFI
-	qemu-system-i386 \
-		-M q35 \
-		-drive if=pflash,unit=0,format=raw,file=edk2-ovmf-bins/ovmf-code-$(ARCH).fd,readonly=on \
+	cp bin-$(ARCH)/$(OUTPUT).efi boot/EFI/BOOT/$(EFI_BOOT_FILE)
+	qemu-system-$(QEMU_ARCH) \
+		$(QEMU_MACHINE_FLAGS) \
+		$(QEMU_UEFI_FLAGS) \
 		-drive file=fat:rw:boot \
 		$(QEMUFLAGS)
-endif
-ifeq ($(ARCH),x86_64)
-	cp bin-$(ARCH)/$(OUTPUT).efi boot/EFI/BOOT/BOOTX64.EFI
-	qemu-system-x86_64 \
-		-M q35 \
-		-drive if=pflash,unit=0,format=raw,file=edk2-ovmf-bins/ovmf-code-$(ARCH).fd,readonly=on \
-		-drive file=fat:rw:boot \
-		$(QEMUFLAGS)
-endif
-ifeq ($(ARCH),aarch64)
-	cp bin-$(ARCH)/$(OUTPUT).efi boot/EFI/BOOT/BOOTAA64.EFI
-	qemu-system-aarch64 \
-		-M virt \
-		-cpu cortex-a72 \
-		-device ramfb \
-		-device qemu-xhci \
-		-device usb-kbd \
-		-device usb-tablet \
-		-drive if=pflash,unit=0,format=raw,file=edk2-ovmf-bins/ovmf-code-$(ARCH).fd,readonly=on \
-		-drive file=fat:rw:boot \
-		$(QEMUFLAGS)
-endif
-ifeq ($(ARCH),riscv64)
-	cp bin-$(ARCH)/$(OUTPUT).efi boot/EFI/BOOT/BOOTRISCV64.EFI
-	qemu-system-riscv64 \
-		-M virt \
-		-cpu rv64 \
-		-device ramfb \
-		-device qemu-xhci \
-		-device usb-kbd \
-		-device usb-tablet \
-		-drive if=pflash,unit=0,format=raw,file=edk2-ovmf-bins/ovmf-code-$(ARCH).fd,readonly=on \
-		-drive file=fat:rw:boot \
-		$(QEMUFLAGS)
-endif
-ifeq ($(ARCH),loongarch64)
-	cp bin-$(ARCH)/$(OUTPUT).efi boot/EFI/BOOT/BOOTLOONGARCH64.EFI
-	qemu-system-loongarch64 \
-		-M virt \
-		-cpu la464 \
-		-device ramfb \
-		-device qemu-xhci \
-		-device usb-kbd \
-		-device usb-tablet \
-		-drive if=pflash,unit=0,format=raw,file=edk2-ovmf-bins/ovmf-code-$(ARCH).fd,readonly=on \
-		-drive file=fat:rw:boot \
-		$(QEMUFLAGS)
-endif
 	rm -rf boot
 
 # Remove object files and the final executable.
