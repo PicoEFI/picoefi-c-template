@@ -475,7 +475,7 @@ all: bin-$(ARCH)/$(OUTPUT).efi
 bin-$(ARCH)/$(OUTPUT).efi: bin-$(ARCH)/$(OUTPUT) GNUmakefile
 	mkdir -p "$(dir $@)"
 	$(OBJCOPY) -O binary $< $@
-	dd if=/dev/zero of=$@ bs=4096 count=0 seek=$$(( ($$(wc -c < $@) + 4095) / 4096 )) 2>/dev/null
+	dd if=/dev/null of=$@ bs=4096 seek=$$(( ($$(wc -c < $@) + 4095) / 4096 )) 2>/dev/null
 
 # Link rules for the final executable.
 bin-$(ARCH)/$(OUTPUT): GNUmakefile picoefi/$(ARCH)/link_script.lds $(OBJ)
