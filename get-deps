@@ -54,7 +54,7 @@ clone_repo_commit \
 clone_repo_commit \
     https://github.com/PicoEFI/PicoEFI.git \
     picoefi \
-    470ec8325a1e05697c3af6248e2423a92bb820b0
+    8093094c4f5c4cc543689703d1b6e0b56a99ca34
 
 touch .deps-obtained
 
