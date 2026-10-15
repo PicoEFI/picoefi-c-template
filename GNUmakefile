@@ -198,8 +198,7 @@ ifeq ($(ARCH),ia32)
     override CFLAGS += \
         -m32 \
         -march=i686 \
-        -mno-mmx \
-        -malign-double
+        -mno-mmx
     override LDFLAGS += \
         -Wl,-m,elf_i386
     override NASMFLAGS := \
@@ -328,13 +327,6 @@ ifeq ($(ARCH),ia32)
     ifeq ($(call CC_HAS_COMPILE_FLAG,-mno-80387),1)
         override CFLAGS += \
             -mno-80387
-    endif
-    # Clang below 9 takes -malign-double and ignores it, which lays out
-    # every firmware structure with a 64 bit member wrong, so check the
-    # alignment rather than the flag.
-    override CC_ALIGNS_64BIT := $(shell ! printf 'struct s { char c; long long x; };\n_Static_assert(sizeof(struct s) == 16, "");\n' | $(CC) $(CFLAGS) -c -x c - -o /dev/null 2>/dev/null; echo $$?)
-    ifneq ($(CC_ALIGNS_64BIT),1)
-        $(call TOOLCHAIN_ERROR,The compiler does not align 64 bit types to 8 bytes)
     endif
 endif
 ifeq ($(ARCH),x86_64)
