@@ -488,8 +488,8 @@ override CHANGED_VARSFILES := $(foreach f,$(VARSFILES),$(shell printf '%s\n' '$(
 FORCE:
 $(CHANGED_VARSFILES): FORCE
 $(VARSFILES):
-	mkdir -p "$(dir $@)"
-	printf '%s\n' '$(subst ','\'',$($(notdir $@)))' > $@
+	@mkdir -p "$(dir $@)"
+	@printf '%s\n' '$(subst ','\'',$($(notdir $@)))' > $@
 
 # Rule to convert the final ELF executable to a .EFI PE executable.
 bin-$(ARCH)/$(OUTPUT).efi: bin-$(ARCH)/$(OUTPUT) GNUmakefile obj-$(ARCH)/OBJCOPY
