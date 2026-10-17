@@ -144,6 +144,7 @@ override CFLAGS += \
     -Wextra \
     -std=gnu11 \
     -ffreestanding \
+    -fno-exceptions \
     -fno-common \
     -fno-stack-protector \
     -fno-stack-check \
