@@ -155,6 +155,7 @@ override CFLAGS += \
     -fno-stack-check \
     -fshort-wchar \
     -fPIE \
+    -fvisibility=hidden \
     -ffunction-sections \
     -fdata-sections
 
