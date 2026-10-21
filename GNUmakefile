@@ -519,7 +519,6 @@ $(VARSFILES):
 bin-$(ARCH)/$(OUTPUT).efi: bin-$(ARCH)/$(OUTPUT) GNUmakefile obj-$(ARCH)/OBJCOPY
 	mkdir -p "$(dir $@)"
 	$(OBJCOPY) -O binary $< $@
-	dd if=/dev/null of=$@ bs=4096 seek=$$(( ($$(wc -c < $@) + 4095) / 4096 )) 2>/dev/null
 
 # Link rules for the final executable.
 bin-$(ARCH)/$(OUTPUT): GNUmakefile obj-$(ARCH)/CC obj-$(ARCH)/CFLAGS obj-$(ARCH)/LDFLAGS picoefi/$(ARCH)/link_script.lds $(OBJ)
