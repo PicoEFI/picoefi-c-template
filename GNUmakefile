@@ -166,7 +166,7 @@ override CPPFLAGS := \
     -I picoefi/inc \
     -isystem freestanding-c-hdrs/include \
     $(CPPFLAGS) \
-    -MMD \
+    -MD \
     -MP
 
 ifneq ($(filter $(ARCH),ia32 x86_64),)
