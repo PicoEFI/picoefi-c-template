@@ -22,40 +22,62 @@ endif
 # Default user QEMU flags. These are appended to the QEMU command calls.
 QEMUFLAGS := -m 2G
 
-# Internal architecture specific variables that should not be changed by the
-# user. QEMU calls ia32 i386.
-override QEMU_ARCH := $(subst ia32,i386,$(ARCH))
+# Per-architecture user controllable QEMU flags.
 ifneq ($(filter $(ARCH),ia32 x86_64),)
-    ifeq ($(ARCH),ia32)
-        override EFI_BOOT_FILE := BOOTIA32.EFI
-    else
-        override EFI_BOOT_FILE := BOOTX64.EFI
-    endif
-    override QEMU_MACHINE_FLAGS := \
-        -M q35
+    QEMU_MACHINE := -M q35
+    # Uncomment this line and comment out/remove the xHCI/USB keyboard/mouse
+    # block below if the program does not support xHCI/USB and wants legacy
+    # PS/2 keyboard and mouse instead.
+    #QEMU_DEVICES :=
+    QEMU_DEVICES := \
+        -device qemu-xhci \
+        -device usb-kbd \
+        -device usb-mouse
+    QEMU_CPU :=
 else
+    QEMU_MACHINE := -M virt
     ifeq ($(ARCH),aarch64)
-        override QEMU_CPU := cortex-a72
-        override EFI_BOOT_FILE := BOOTAA64.EFI
+        QEMU_CPU := -cpu cortex-a72
     endif
     ifeq ($(ARCH),riscv64)
-        override QEMU_CPU := rv64
-        override EFI_BOOT_FILE := BOOTRISCV64.EFI
+        QEMU_CPU := -cpu rv64
     endif
     ifeq ($(ARCH),loongarch64)
-        override QEMU_CPU := la464
-        override EFI_BOOT_FILE := BOOTLOONGARCH64.EFI
+        QEMU_CPU := -cpu la464
     endif
-    override QEMU_MACHINE_FLAGS := \
-        -M virt \
-        -cpu $(QEMU_CPU) \
+    QEMU_DEVICES := \
         -device ramfb \
         -device qemu-xhci \
         -device usb-kbd \
-        -device usb-tablet
+        -device usb-mouse
 endif
-override QEMU_UEFI_FLAGS := \
+
+override QEMUFLAGS := \
+    $(QEMU_MACHINE) \
+    $(QEMU_CPU) \
+    $(QEMU_DEVICES) \
+    $(QEMUFLAGS)
+override QEMU_UEFI_FW := \
     -drive if=pflash,unit=0,format=raw,file=edk2-ovmf-bins/ovmf-code-$(ARCH).fd,readonly=on
+
+# Internal architecture specific variables that should not be changed by the
+# user. QEMU calls ia32 i386.
+override QEMU_ARCH := $(subst ia32,i386,$(ARCH))
+ifeq ($(ARCH),ia32)
+    override EFI_BOOT_FILE := BOOTIA32.EFI
+endif
+ifeq ($(ARCH),x86_64)
+    override EFI_BOOT_FILE := BOOTX64.EFI
+endif
+ifeq ($(ARCH),aarch64)
+    override EFI_BOOT_FILE := BOOTAA64.EFI
+endif
+ifeq ($(ARCH),riscv64)
+    override EFI_BOOT_FILE := BOOTRISCV64.EFI
+endif
+ifeq ($(ARCH),loongarch64)
+    override EFI_BOOT_FILE := BOOTLOONGARCH64.EFI
+endif
 
 # User controllable toolchain and toolchain prefix.
 TOOLCHAIN :=
@@ -561,10 +583,9 @@ run: all edk2-ovmf-bins
 	mkdir -p boot/EFI/BOOT
 	cp bin-$(ARCH)/$(OUTPUT).efi boot/EFI/BOOT/$(EFI_BOOT_FILE)
 	qemu-system-$(QEMU_ARCH) \
-		$(QEMU_MACHINE_FLAGS) \
-		$(QEMU_UEFI_FLAGS) \
 		-drive file=fat:rw:boot \
-		$(QEMUFLAGS)
+		$(QEMUFLAGS) \
+		$(QEMU_UEFI_FW)
 	rm -rf boot
 
 # Remove object files and the final executable.
