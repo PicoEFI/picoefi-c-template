@@ -228,6 +228,10 @@ ifeq ($(ARCH),ia32)
         -m32 \
         -march=i686 \
         -mno-mmx
+    # PicoEFI lays out 64-bit fields aligned to 8 bytes, as UEFI does, which
+    # the IA-32 ABI does only with this flag.
+    override CFLAGS += \
+        -malign-double
     override LDFLAGS += \
         -Wl,-m,elf_i386
     override NASMFLAGS := \
