@@ -185,7 +185,7 @@ override CFLAGS += \
 override CPPFLAGS := \
     -nostdinc \
     -I src \
-    -I picoefi/inc \
+    -I picoefi/include \
     -isystem freestanding-c-hdrs/include \
     $(CPPFLAGS) \
     -MD \
@@ -220,7 +220,7 @@ override LDFLAGS += \
     -Wl,--gc-sections \
     -Wl,--build-id=none \
     -Wl,--hash-style=gnu \
-    -Wl,-T,picoefi/$(ARCH)/link_script.lds
+    -Wl,-T,picoefi/src/$(ARCH)/link_script.lds
 
 # Architecture specific internal flags.
 ifeq ($(ARCH),ia32)
@@ -500,7 +500,7 @@ endif
 # Use "find" to glob all *.c, *.S, and *.asm files in the tree
 # (except the src/arch/* directories, as those are gonna be added
 # in the next step).
-override SRCFILES := $(shell find -L src freestanding-lgrt/src picoefi/$(ARCH) -type f ! -path 'src/arch/*' 2>/dev/null | LC_ALL=C sort)
+override SRCFILES := $(shell find -L src freestanding-lgrt/src picoefi/src/$(ARCH) -type f ! -path 'src/arch/*' 2>/dev/null | LC_ALL=C sort)
 # Add architecture specific files, if they exist.
 override SRCFILES += $(shell find -L src/arch/$(ARCH) -type f 2>/dev/null | LC_ALL=C sort)
 # Obtain the object and header dependencies file names.
@@ -547,7 +547,7 @@ bin-$(ARCH)/$(OUTPUT).efi: bin-$(ARCH)/$(OUTPUT) GNUmakefile obj-$(ARCH)/OBJCOPY
 	$(OBJCOPY) -O binary $< $@
 
 # Link rules for the final executable.
-bin-$(ARCH)/$(OUTPUT): GNUmakefile obj-$(ARCH)/CC obj-$(ARCH)/CFLAGS obj-$(ARCH)/LDFLAGS picoefi/$(ARCH)/link_script.lds $(OBJ)
+bin-$(ARCH)/$(OUTPUT): GNUmakefile obj-$(ARCH)/CC obj-$(ARCH)/CFLAGS obj-$(ARCH)/LDFLAGS picoefi/src/$(ARCH)/link_script.lds $(OBJ)
 	mkdir -p "$(dir $@)"
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) -o $@
 
