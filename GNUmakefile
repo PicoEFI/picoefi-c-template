@@ -171,8 +171,12 @@ override CFLAGS += \
     -Wextra \
     -std=gnu11 \
     -ffreestanding \
+    -fno-builtin \
     -fno-exceptions \
+    -fno-asynchronous-unwind-tables \
+    -fno-unwind-tables \
     -fno-common \
+    -fno-strict-aliasing \
     -fno-stack-protector \
     -fno-stack-check \
     -fshort-wchar \
@@ -184,6 +188,7 @@ override CFLAGS += \
 # Internal C preprocessor flags that should not be changed by the user.
 override CPPFLAGS := \
     -nostdinc \
+    -include src/hidden.h \
     -I src \
     -I picoefi/include \
     -isystem freestanding-c-hdrs/include \
@@ -249,10 +254,13 @@ ifeq ($(ARCH),x86_64)
         $(NASMFLAGS)
 endif
 ifeq ($(ARCH),aarch64)
+    # The UEFI AArch64 binding reserves x18.
     override CFLAGS += \
         -mcpu=generic \
         -march=armv8-a+nofp+nosimd \
-        -mcmodel=small
+        -mlittle-endian \
+        -mcmodel=small \
+        -ffixed-x18
     override LDFLAGS += \
         -Wl,-m,aarch64elf
 endif
@@ -386,11 +394,23 @@ ifeq ($(ARCH),x86_64)
         override CFLAGS += \
             -mno-80387
     endif
+    # Older GCCs need this for ms_abi calls. Clang has no such flag.
+    ifneq ($(CC_IS_CLANG),1)
+        override CFLAGS += \
+            -maccumulate-outgoing-args
+    endif
 endif
 ifeq ($(ARCH),aarch64)
     ifeq ($(call CC_HAS_COMPILE_FLAG,-mbranch-protection=none),1)
         override CFLAGS += \
             -mbranch-protection=none
+    endif
+    # Clang does not take this ABI name.
+    ifneq ($(CC_IS_CLANG),1)
+        ifeq ($(call CC_HAS_COMPILE_FLAG,-mabi=lp64),1)
+            override CFLAGS += \
+                -mabi=lp64
+        endif
     endif
     # Only the linker can work around Cortex-A53 erratum 843419, so
     # require one that can.
@@ -426,6 +446,12 @@ ifeq ($(ARCH),riscv64)
             override CFLAGS += \
                 -mcmodel=small
         endif
+    endif
+    # The UEFI RISC-V binding forbids relying on unaligned accesses.
+    # Compilers without the flag never make them.
+    ifeq ($(call CC_HAS_COMPILE_FLAG,-mstrict-align),1)
+        override CFLAGS += \
+            -mstrict-align
     endif
     # Keep linker relaxation away from gp, which nothing sets up. Linkers
     # without the flag only use gp if the script defines __global_pointer$.
